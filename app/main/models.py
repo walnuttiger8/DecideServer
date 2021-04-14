@@ -9,6 +9,7 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True)
     password_hash = db.Column(db.String(255))
     wallets = db.relationship("Wallet", backref="user", lazy="dynamic")
+    balance = db.Column(db.Float(), default=0)
 
     def __repr__(self):
         return f"<User: {self.id}; {self.name}>"
@@ -18,6 +19,17 @@ class User(db.Model):
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
+
+    def spend(self, amount):
+        if amount > self.balance:
+            raise Exception("cant spend more money than you have")
+        self.balance -= amount
+        db.session.commit()
+
+    def top_up(self, amount):
+        assert amount >= 0, "cant top up balance on negative value"
+        self.balance += amount
+        db.session.commit()
 
 
 class Coin(db.Model):
@@ -39,3 +51,13 @@ class Wallet(db.Model):
 
     def __repr__(self):
         return f"<Wallet {self.coin.symbol}; {self.amount}; {self.percent}%>"
+
+    def buy(self, value):
+        assert value >= 0, "cant buy negative amount of coins"
+        self.amount += value
+        db.session.commit()
+
+    def sell(self, value):
+        assert value <= self.amount, "cant sell more than you have"
+        self.amount -= value
+        db.session.commit()

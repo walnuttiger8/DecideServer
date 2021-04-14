@@ -1,8 +1,7 @@
 from app.main.models import User, Wallet
 from app.controllers.CoinController import CoinController
+from app.controllers.WalletController import WalletController
 from app import db
-from pydantic import BaseModel
-from typing import Optional
 
 data = {
     "name": "Oleg",
@@ -19,6 +18,15 @@ class UserController():
     @property
     def user(self):
         return self._user
+
+    @property
+    def balance(self):
+        return self.user.balance
+
+    @property
+    def wallets(self):
+        wallets = self.user.wallets
+        return [WalletController(w) for w in wallets]
 
     def __repr__(self):
         return f"<User Controller {self.user.id}; {self.user.name}>"
@@ -40,3 +48,32 @@ class UserController():
             coin_wallet.percent = percent
         db.session.commit()
         return coin_wallet
+
+    def get_overall_balance(self):
+        balance = self.user.balance
+        for wallet in self.wallets:
+            balance += wallet.convert_amount()
+
+        return balance
+
+    def get_wallet(self, coin: CoinController):
+        for wallet in self.wallets:
+            if wallet.coin.coin.id == coin.coin.id:
+                return wallet
+
+    def buy(self, coin: CoinController):
+        wallet = self.get_wallet(coin)
+        if not wallet:
+            return
+        value = self.balance * (wallet.percent/100)
+        self.user.spend(value)
+        amount = value / coin.price
+        wallet.wallet.buy(amount)
+
+    def sell(self, coin: CoinController):
+        wallet = self.get_wallet(coin)
+        if not wallet:
+            return
+        value = coin.price * wallet.amount
+        self.user.top_up(value)
+        wallet.wallet.sell(wallet.amount)

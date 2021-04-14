@@ -32,9 +32,27 @@ class BinanceController:
         else:
             return None
 
+    @staticmethod
+    def get_symbols():
+        url = "/api/v3/exchangeInfo"
+        response = requests.get(BinanceController._base_url + url)
+        data = response.json()
+        result = list()
+        symbols = data["symbols"]
+        for symbol in symbols:
+            result.append(symbol["symbol"])
+        return result
+
+
+from app import db
+from app.main.models import Coin
 
 if __name__ == "__main__":
     symbol = "BTCUSDT"
     interval = "15m"
-    for data in BinanceController.get_candlestick_data(symbol, interval, limit=20):
-        print(data[4])
+
+    for data in BinanceController.get_symbols():
+        if data.endswith("USDT"):
+            coin = Coin(symbol=data)
+            db.session.add(coin)
+    db.session.commit()

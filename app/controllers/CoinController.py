@@ -9,7 +9,7 @@ class CoinController:
         self._coin = coin
 
     def __repr__(self):
-        return f"<Coin {self._coin.symbol}; price={self._coin.price}>"
+        return f"<Coin {self._coin.symbol}; price={self.price}>"
 
     @property
     def symbol(self) -> str:
@@ -18,6 +18,10 @@ class CoinController:
     @property
     def coin(self):
         return self._coin
+
+    @property
+    def price(self):
+        return self.coin.price
 
     def get_price(self):
         price: float = BinanceController.get_price(self.symbol)

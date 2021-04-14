@@ -29,8 +29,7 @@ class WalletController:
 
     def convert_amount(self):
         coin = CoinController(self.wallet.coin)
-        if not coin.price:
-            coin.get_price()
+        coin.get_price()
 
         return coin.price * self.wallet.amount
 

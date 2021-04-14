@@ -19,9 +19,22 @@ class BinanceController:
         response = requests.get(BinanceController._base_url + url, params=params)
         return response.json()
 
+    @staticmethod
+    def get_price(symbol: str):
+        url = "/api/v3/ticker/price"
+        params = {
+            "symbol": symbol
+        }
+        response = requests.get(BinanceController._base_url + url, params=params)
+        data = response.json()
+        if "price" in data:
+            return float(data["price"])
+        else:
+            return None
+
 
 if __name__ == "__main__":
-    symbol = "ETHUSDT"
+    symbol = "BTCUSDT"
     interval = "15m"
-    for data in BinanceController.get_candlestick_data(symbol, interval):
-        print(data)
+    for data in BinanceController.get_candlestick_data(symbol, interval, limit=20):
+        print(data[4])

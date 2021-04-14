@@ -1,4 +1,5 @@
-from app.main.models import User
+from app.main.models import User, Wallet
+from app.controllers.CoinController import CoinController
 from app import db
 from pydantic import BaseModel
 from typing import Optional
@@ -10,52 +11,32 @@ data = {
 }
 
 
-class UserController(BaseModel):
-    id: Optional[int] = None
-    name: Optional[str] = None
-    email: str
-    password: Optional[str] = None
+class UserController():
+
+    def __init__(self, user: User):
+        self._user = user
+
+    @property
+    def user(self):
+        return self._user
+
+    def __repr__(self):
+        return f"<User Controller {self.user.id}; {self.user.name}>"
 
     @staticmethod
-    def get_controller(data: dict):
-        return UserController(**data)
-
-    def _get_user(self):
-        if self.id:
-            user = User.query.get(id=self.id)
-            return user
-        elif self.email:
-            user = User.query.filter(email=self.email).first()
-            return user
-        else:
-            print("Invalid data")
-            return None
-
-    def register(self):
-        user: User = self._get_user()
-        if user:
-            print("user with such email already exists")
-            return
-
-        user = User(email=self.email, name=self.name)
-        user.set_password(self.password)
-        db.session.add(user)
-        db.session.commit()
-        return user
-
-    def auth(self):
-        user: User = self._get_user()
+    def from_db(user_id):
+        user = User.query.get(user_id)
         if not user:
-            print("user not found")
-            return
+            return None
+        return UserController(user)
 
-        if user.check_password(self.password):
-            return user
+    def add_coin(self, coin: CoinController, percent=0):
+        wallets = self._user.wallets
+        coin_wallet = wallets.filter_by(coin=coin.coin).first()
+        if not coin_wallet:
+            coin_wallet = Wallet(coin_id=coin.coin.id, user_id=self.user.id, percent=percent, amount=0)
+            db.session.add(coin_wallet)
         else:
-            print("auth failed!")
-
-
-
-
-user = UserController.get_controller(data)
-print(user)
+            coin_wallet.percent = percent
+        db.session.commit()
+        return coin_wallet

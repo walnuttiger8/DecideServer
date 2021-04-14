@@ -39,7 +39,7 @@ def login():
         return jsonify(success=0, results={}, message="Пользователь не найден")
 
     if user.check_password(password):
-        return jsonify(success=1, result={"user_id": user.id}, message="Выполнен вход")
+        return jsonify(success=1, results={"user_id": user.id}, message="Выполнен вход")
 
-    return jsonify(success=0, result={}, message="Неверный пароль")
+    return jsonify(success=0, results={}, message="Неверный пароль")
 

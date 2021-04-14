@@ -1,7 +1,9 @@
-from app.main import bp
 from flask import jsonify, request
-from app.main.models import User
+
 from app import db
+from app.main import bp
+from app.main.models import User
+from app.controllers.user_controller import UserController
 
 
 @bp.route("/", methods=["POST"])
@@ -29,7 +31,6 @@ def register():
 
 @bp.route("/login", methods=["POST"])
 def login():
-    #  email, password
     data = request.get_json()
     email = data["email"]
     password = data["password"]
@@ -43,3 +44,16 @@ def login():
 
     return jsonify(success=0, results={}, message="Неверный пароль")
 
+
+# Name: string; Email: string; Balance: float;
+@bp.route("/get_user", methods=["POST"])
+def get_user():
+    data = request.get_json()
+    user_id: int = data["user_id"]
+    user = UserController.from_db(user_id)
+
+    if not user:
+        return jsonify(success=0, results={}, message="Пользователь не найден")
+
+    user_data = {"Name": user.name, "Email": user.email, "Balance": user.balance}
+    return jsonify(success=1, results=user_data, message="Пользователь получен успешно")

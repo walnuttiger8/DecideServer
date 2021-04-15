@@ -27,6 +27,14 @@ class UserController():
     def wallets(self):
         wallets = self.user.wallets
         return [WalletController(w) for w in wallets]
+    
+    @property
+    def name(self):
+        return self.user.name
+
+    @property
+    def email(self):
+        return self.user.email
 
     def __repr__(self):
         return f"<User Controller {self.user.id}; {self.user.name}>"

@@ -46,3 +46,10 @@ class CoinController:
         history = BinanceController.get_candlestick_data(self.symbol, limit=20)
         data = [h[4] for h in history]
         return data
+
+    def to_json(self):
+        json = {
+                "symbol": self.symbol,
+                "price": self.price,
+            }
+        return json

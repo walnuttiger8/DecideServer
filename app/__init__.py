@@ -7,6 +7,10 @@ from config import Config
 db = SQLAlchemy()
 migrate = Migrate(db)
 
+from app.controllers.model_controller import ModelController
+
+model = ModelController()
+
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -17,6 +21,8 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)
 
+    print(model.model)
+
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
 
@@ -26,7 +32,10 @@ def create_app(config_class=Config):
         from app.controllers.WalletController import WalletController
         from app.controllers.CoinController import CoinController
         from app.controllers.user_controller import UserController
+        from app.controllers.model_controller import ModelController
+        from app.controllers.BinanceController import BinanceController
         return {'db': db, 'User': User, 'Coin': Coin, "Wallet": Wallet,
-                "WC": WalletController, "CC": CoinController, "UC": UserController}
+                "WC": WalletController, "CC": CoinController, "UC": UserController, "MC": ModelController,
+                "BC": BinanceController}
 
     return app

@@ -33,4 +33,12 @@ class WalletController:
 
         return coin.price * self.wallet.amount
 
+    def to_json(self):
+        json = {
+            "coin": self.coin.to_json(),
+            "amount": self.amount,
+            "percent": self.percent,
+        }
+        return json
+
 

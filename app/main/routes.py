@@ -131,3 +131,22 @@ def get_wallets():
 
     return jsonify(success=1, results=results, message="Успешно")
 
+
+@bp.route("/get_trades", methods=["POST"])
+def get_trades():
+    data = request.get_json()
+
+    if "user_id" in data:
+        user_id = data["user_id"]
+    else:
+        return jsonify(success=0, results={}, message="Отсутствует user_id")
+
+    user = UserController.from_db(user_id)
+    if not user:
+        return jsonify(success=0, results={}, message="Пользователь не найден")
+
+    results = list()
+    for trade in user.trades:
+        results.append(trade.to_json())
+
+    return jsonify(success=1, results=results, message="Успешно")

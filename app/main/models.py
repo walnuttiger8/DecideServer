@@ -77,3 +77,12 @@ class Trade(db.Model):
 
     def __repr__(self):
         return f"<Trade: {self.transaction} {self.amount} {self.wallet.coin.symbol} for {self.price*self.amount}$>"
+
+    def to_json(self):
+        return {
+            "symbol": self.coin.symbol,
+            "price": self.price,
+            "amount": self.amount,
+            "time": self.time,
+            "transaction": self.transaction
+        }

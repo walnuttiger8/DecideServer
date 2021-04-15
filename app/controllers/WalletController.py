@@ -1,4 +1,4 @@
-from app.main.models import Wallet
+from app.main.models import Wallet, Trade
 from app.controllers.CoinController import CoinController
 from app import db
 
@@ -14,6 +14,10 @@ class WalletController:
     @property
     def wallet(self):
         return self._wallet
+    
+    @property
+    def id(self):
+        return self.wallet.id
 
     @property
     def coin(self):
@@ -22,10 +26,18 @@ class WalletController:
     @property
     def percent(self):
         return self.wallet.percent
-    
+
     @property
     def amount(self):
         return self.wallet.amount
+
+    @property
+    def trades(self):
+        return self.wallet.trades
+
+    @property
+    def user(self):
+        return self.wallet.user
 
     def convert_amount(self):
         coin = CoinController(self.wallet.coin)
@@ -41,4 +53,20 @@ class WalletController:
         }
         return json
 
+    def buy(self):
+        value = self.user.balance * (self.percent / 100)
+        self.user.spend(value)
+        amount = value / self.coin.price
+        self.wallet.buy(amount)
+        self.add_trade(Trade.BUY)
 
+    def sell(self):
+        value = self.coin.price * self.amount
+        self.user.top_up(value)
+        self.add_trade(Trade.SELL)
+        self.wallet.sell(self.amount)
+
+    def add_trade(self, transaction: str = Trade.BUY):
+        trade = Trade(wallet=self.wallet, price=self.coin.price, amount=self.amount, transaction=transaction)
+        db.session.add(trade)
+        db.session.commit()

@@ -19,7 +19,7 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
 
     db.init_app(app)
-    migrate.init_app(app, db)
+    migrate.init_app(app, db, render_as_batch=True)
 
     print(model.model)
 
@@ -36,6 +36,8 @@ def create_app(config_class=Config):
         from app.controllers.BinanceController import BinanceController
         return {'db': db, 'User': User, 'Coin': Coin, "Wallet": Wallet,
                 "WC": WalletController, "CC": CoinController, "UC": UserController, "MC": ModelController,
-                "BC": BinanceController}
+                "BC": BinanceController, "oleg": UserController.from_db(1),
+                "btc": CoinController.from_db(symbol="BTCUSDT"), "eth": CoinController.from_db(symbol="ETHUSDT"),
+                "xrp": CoinController.from_db(symbol="XRPUSDT")}
 
     return app

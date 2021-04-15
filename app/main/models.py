@@ -1,5 +1,6 @@
 from app import db
 from werkzeug.security import check_password_hash, generate_password_hash
+from datetime import datetime
 
 
 class User(db.Model):
@@ -47,6 +48,7 @@ class Wallet(db.Model):
     amount = db.Column(db.Float())
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     coin_id = db.Column(db.Integer, db.ForeignKey("coin.id"))
+    trades = db.relationship("Trade", backref="wallet", lazy="dynamic")
 
     def __repr__(self):
         return f"<Wallet {self.coin.symbol}; {self.amount}; {self.percent}%>"
@@ -60,3 +62,18 @@ class Wallet(db.Model):
         assert value <= self.amount, "cant sell more than you have"
         self.amount -= value
         db.session.commit()
+
+
+class Trade(db.Model):
+    BUY = "buy"
+    SELL = "sell"
+
+    id = db.Column(db.Integer, primary_key=True)
+    wallet_id = db.Column(db.Integer, db.ForeignKey("wallet.id"))
+    price = db.Column(db.Float)
+    amount = db.Column(db.Float)
+    time = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    transaction = db.Column(db.String(10))
+
+    def __repr__(self):
+        return f"<Trade: {self.transaction} {self.amount} {self.wallet.coin.symbol} for {self.price*self.amount}$>"

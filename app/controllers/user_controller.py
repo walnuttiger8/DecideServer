@@ -1,4 +1,4 @@
-from app.main.models import User, Wallet
+from app.main.models import User, Wallet, Trade
 from app.controllers.CoinController import CoinController
 from app.controllers.WalletController import WalletController
 from app import db
@@ -31,6 +31,14 @@ class UserController():
     @property
     def name(self):
         return self.user.name
+
+    @property
+    def trades(self):
+        trades = list()
+        for wallet in self.wallets:
+            for trade in wallet.trades:
+                trades.append(trade)
+        return sorted(trades, key=lambda x: x.time)
 
     @property
     def email(self):
@@ -73,15 +81,11 @@ class UserController():
         wallet = self.get_wallet(coin)
         if not wallet:
             return
-        value = self.balance * (wallet.percent/100)
-        self.user.spend(value)
-        amount = value / coin.price
-        wallet.wallet.buy(amount)
+        wallet.buy()
 
     def sell(self, coin: CoinController):
         wallet = self.get_wallet(coin)
         if not wallet:
             return
-        value = coin.price * wallet.amount
-        self.user.top_up(value)
-        wallet.wallet.sell(wallet.amount)
+        wallet.sell()
+

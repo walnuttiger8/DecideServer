@@ -41,8 +41,7 @@ def upgrade():
     sa.Column('coin_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['coin_id'], ['coin.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
+    sa.PrimaryKeyConstraint('id')    )
     # ### end Alembic commands ###
 
 

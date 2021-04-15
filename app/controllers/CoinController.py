@@ -1,6 +1,6 @@
 from app.main.models import Coin
 from app.controllers.BinanceController import BinanceController
-from app import db
+from app import db, model
 
 
 class CoinController:
@@ -43,9 +43,14 @@ class CoinController:
         return CoinController(coin)
 
     def get_history(self):
-        history = BinanceController.get_candlestick_data(self.symbol, limit=20)
+        history = BinanceController.get_candlestick_data(self.symbol, limit=10, interval="1h")
         data = [h[4] for h in history]
         return data
+
+    def get_prediction(self):
+        data = self.get_history()
+        return model.predict(data)
+
 
     def to_json(self):
         json = {

@@ -63,7 +63,7 @@ class UserController():
         else:
             coin_wallet.percent = percent
         db.session.commit()
-        return coin_wallet
+        return WalletController(coin_wallet)
 
     def get_overall_balance(self):
         balance = self.user.balance

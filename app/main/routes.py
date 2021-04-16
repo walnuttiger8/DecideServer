@@ -4,8 +4,8 @@ from app import db
 from app.main import bp
 from app.main.models import User
 from app.controllers.user_controller import UserController
-from app.controllers.CoinController import CoinController
-from app.controllers.WalletController import WalletController
+from app.controllers.coin_controller import CoinController
+from app.controllers.wallet_controller import WalletController
 
 
 @bp.route("/", methods=["POST"])

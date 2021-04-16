@@ -1,5 +1,5 @@
 from app.main.models import Wallet, Trade
-from app.controllers.CoinController import CoinController
+from app.controllers.coin_controller import CoinController
 from app import db
 
 
@@ -14,7 +14,7 @@ class WalletController:
     @property
     def wallet(self):
         return self._wallet
-    
+
     @property
     def id(self):
         return self.wallet.id
@@ -62,16 +62,28 @@ class WalletController:
 
     def buy(self):
         value = self.user.balance * (self.percent / 100)
-        self.user.spend(value)
         amount = value / self.coin.price
-        self.wallet.buy(amount)
-        self.add_trade(Trade.BUY)
+        if amount > 0:
+            self.user.spend(value)
+            self.wallet.buy(amount)
+            self.add_trade(Trade.BUY)
 
     def sell(self):
         value = self.coin.price * self.amount
-        self.user.top_up(value)
-        self.add_trade(Trade.SELL)
-        self.wallet.sell(self.amount)
+        if value:
+            self.user.top_up(value)
+            self.add_trade(Trade.SELL)
+            self.wallet.sell(self.amount)
+
+    def get_profit(self):
+        profit = 0
+        for trade in self.trades:
+            if trade.transaction == Trade.BUY:
+                profit -= trade.price * trade.amount
+            elif trade.transaction == Trade.SELL:
+                profit += trade.price * trade.amount
+
+        return profit
 
     def add_trade(self, transaction: str = Trade.BUY):
         trade = Trade(wallet=self.wallet, price=self.coin.price, amount=self.amount, transaction=transaction)

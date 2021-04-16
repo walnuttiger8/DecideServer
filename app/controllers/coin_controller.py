@@ -1,5 +1,5 @@
 from app.main.models import Coin
-from app.controllers.BinanceController import BinanceController
+from app.controllers.binance_controller import BinanceController
 from app import db, model
 
 
@@ -22,6 +22,11 @@ class CoinController:
     @property
     def price(self):
         return self.coin.price
+
+    @property
+    def wallets(self):
+        from app.controllers.wallet_controller import WalletController as WC
+        return [WC(wallet) for wallet in self.coin.wallets]
 
     def get_price(self):
         price: float = BinanceController.get_price(self.symbol)
@@ -68,3 +73,4 @@ class CoinController:
                 continue
             coin.coin.price = symbol["price"]
         db.session.commit()
+

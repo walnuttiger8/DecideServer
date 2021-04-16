@@ -7,7 +7,7 @@ class ModelController:
     prediction_period = 10
     model_bias = 0.01
 
-    def __init__(self, modelpath: str = "60-20-60-model.hdf5"):
+    def __init__(self, modelpath: str = r"D:\coding\python\test_cs_server\60-20-60-model.hdf5"):
         self._model: tf.keras.Sequential = tf.keras.models.load_model(modelpath)
         self._scaler = MinMaxScaler(feature_range=(0, 1))
 

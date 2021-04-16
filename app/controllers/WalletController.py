@@ -39,6 +39,13 @@ class WalletController:
     def user(self):
         return self.wallet.user
 
+    @staticmethod
+    def from_db(wallet_id):
+        wallet = Wallet.query.get(wallet_id)
+        if not wallet:
+            return None
+        return WalletController(wallet)
+
     def convert_amount(self):
         coin = CoinController(self.wallet.coin)
         coin.get_price()

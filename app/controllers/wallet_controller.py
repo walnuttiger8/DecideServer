@@ -63,7 +63,7 @@ class WalletController:
     def buy(self):
         value = self.user.balance * (self.percent / 100)
         amount = value / self.coin.price
-        if amount > 0:
+        if amount > 0.0001:
             self.user.spend(value)
             self.wallet.buy(amount)
             self.add_trade(Trade.BUY)

@@ -56,7 +56,7 @@ def get_user():
     if not user:
         return jsonify(success=0, results={}, message="Пользователь не найден")
 
-    user_data = {"Name": user.name, "Email": user.email, "Balance": user.balance}
+    user_data = {"name": user.name, "email": user.email, "balance": user.balance}
     return jsonify(success=1, results=user_data, message="Пользователь получен успешно")
 
 

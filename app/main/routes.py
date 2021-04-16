@@ -1,11 +1,10 @@
 from flask import jsonify, request
 
 from app import db
+from app.controllers.coin_controller import CoinController
+from app.controllers.user_controller import UserController
 from app.main import bp
 from app.main.models import User
-from app.controllers.user_controller import UserController
-from app.controllers.coin_controller import CoinController
-from app.controllers.wallet_controller import WalletController
 
 
 @bp.route("/", methods=["POST"])
@@ -192,8 +191,8 @@ def sell_coin():
     wallet = user.get_wallet(coin)
 
     wallet.sell()
-    trade = wallet.trades.last()
-    return jsonify(success=1, results=trade.to_json(), message="Монета продана")
+
+    return jsonify(success=1, results={}, message="Монета продана")
 
 
 @bp.route("/overall_balance")
@@ -227,3 +226,20 @@ def top_up():
 
     user.user.top_up(amount)
     return jsonify(success=1, results={"balance": user.balance}, message="Успешно")
+
+
+@bp.route("/get_coin")
+def get_coin():
+    data = request.get_json()
+
+    if "symbol" in data:
+        symbol = data["symbol"]
+    else:
+        return jsonify(success=0, results={}, message="Отсутствует аргумент 'symbol'")
+
+    coin = CoinController.from_db(symbol=symbol)
+    if not coin:
+        return jsonify(success=0, results={}, message="Монета не найдена")
+
+    coin.get_price()
+    return jsonify(success=1, results=coin.to_json(), message="Монета получена")

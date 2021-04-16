@@ -4,7 +4,7 @@ from app import db
 from app.controllers.coin_controller import CoinController
 from app.controllers.user_controller import UserController
 from app.main import bp
-from app.main.models import User
+from app.main.models import User, Coin
 
 
 @bp.route("/", methods=["POST"])
@@ -243,3 +243,27 @@ def get_coin():
 
     coin.get_price()
     return jsonify(success=1, results=coin.to_json(), message="Монета получена")
+
+
+@bp.route("/get_coins", methods=["POST"])
+def get_coins():
+    data = request.get_json()
+
+    symbols: list = None
+    result = list()
+    if "symbols" in data:
+        symbols: list = data["symbols"]
+
+    CoinController.update_all_price()
+    if not symbols:
+        for coin in Coin.query.all():
+            coin = CoinController(coin)
+            result.append(coin.to_json())
+        return jsonify(success=1, results=result, message="Все монеты")
+
+    for symbol in symbols:
+        coin = CoinController.from_db(symbol=symbol)
+        if not coin:
+            return jsonify(success=0, results={}, message=f"Отсутсвует монета {symbol}")
+        result.append(coin.to_json())
+    return jsonify(success=1, results=result, message="Монеты из списка")

@@ -228,7 +228,7 @@ def top_up():
     return jsonify(success=1, results={"balance": user.balance}, message="Успешно")
 
 
-@bp.route("/get_coin")
+@bp.route("/get_coin", methods=["POST"])
 def get_coin():
     data = request.get_json()
 

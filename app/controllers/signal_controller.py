@@ -1,14 +1,21 @@
-from app.controllers.model_controller import ModelController
-from app.main.models import Coin
 from app.controllers.coin_controller import CoinController as CC
-from flask import current_app
-import time
+from app.main.models import Coin
 
 
 class SignalController:
 
     def __init__(self):
         pass
+
+    @staticmethod
+    def sell(coin: CC):
+        for wallet in coin.wallets:
+            wallet.sell()
+
+    @staticmethod
+    def buy(coin: CC):
+        for wallet in coin.wallets:
+            wallet.buy()
 
     def mainloop(self, app):
         app.app_context().push()
@@ -25,8 +32,9 @@ class SignalController:
             print(f"Coin: {coin.symbol}; price={coin.price}; pred-price={prediction}")
 
             if prediction > coin.price:
-                for wallet in coin.wallets:
-                    wallet.buy()
+                SignalController.buy(coin)
             else:
-                for wallet in coin.wallets:
-                    wallet.sell()
+                SignalController.sell(coin)
+
+
+

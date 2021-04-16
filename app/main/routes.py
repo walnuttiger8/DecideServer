@@ -176,14 +176,20 @@ def get_history():
 @bp.route("/sell", methods=["POST"])
 def sell_coin():
     data = request.get_json()
-    if "wallet_id" in data:
-        wallet_id = data["wallet_id"]
+    if "user_id" in data and "symbol" in data:
+        user_id = data["user_id"]
+        symbol = data["symbol"]
     else:
-        return jsonify(success=0, results={}, message="Отсутствует ключ 'wallet_id'")
+        return jsonify(success=0, results={}, message="Отсутствует ключ 'user_id' или 'user_id'")
 
-    wallet = WalletController.from_db(wallet_id)
-    if not wallet:
-        return jsonify(success=0, results={}, message="Кошелек не найден")
+    coin = CoinController.from_db(symbol=symbol)
+    user = UserController.from_db(user_id)
+    if not user:
+        return jsonify(success=0, results={}, message="Пользователь не найден")
+    if not coin:
+        return jsonify(success=0, results={}, message="Монета не найдена")
+
+    wallet = user.get_wallet(coin)
 
     wallet.sell()
     trade = wallet.trades.last()

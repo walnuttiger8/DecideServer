@@ -83,6 +83,7 @@ class WalletController:
             elif trade.transaction == Trade.SELL:
                 profit += trade.price * trade.amount
 
+        profit += self.amount * self.coin.price
         return profit
 
     def add_trade(self, transaction: str = Trade.BUY):

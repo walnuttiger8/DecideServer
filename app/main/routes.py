@@ -267,3 +267,27 @@ def get_coins():
             return jsonify(success=0, results={}, message=f"Отсутсвует монета {symbol}")
         result.append(coin.to_json())
     return jsonify(success=1, results=result, message="Монеты из списка")
+
+
+@bp.route("/get_profit", methods=["POST"])
+def get_profit():
+    data = request.get_json()
+
+    if "user_id" in data and "symbol" in data:
+        user_id = data["user_id"]
+        symbol = data["symbol"]
+    else:
+        return jsonify(success=0, results={}, message="Отсутствует ключ 'user_id' или 'user_id'")
+
+    coin = CoinController.from_db(symbol=symbol)
+    user = UserController.from_db(user_id)
+
+    if not user:
+        return jsonify(success=0, results={}, message="Пользователь не найден")
+
+    wallet = user.get_wallet(coin)
+
+    if not wallet:
+        return jsonify(success=0, results={}, message="Кошелек не найден")
+
+    return jsonify(success=1, results={"profit": wallet.get_profit()}, message=f"Профит по {coin.symbol}")

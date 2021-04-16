@@ -51,10 +51,20 @@ class CoinController:
         data = self.get_history()
         return model.predict(data)
 
-
     def to_json(self):
         json = {
-                "symbol": self.symbol,
-                "price": self.price,
-            }
+            "symbol": self.symbol,
+            "price": self.price,
+        }
         return json
+
+    @staticmethod
+    def update_all_price():
+        symbols = BinanceController.get_symbols_price()
+        symbols = list(filter(lambda symbol: symbol["symbol"].endswith("USDT"), symbols))
+        for symbol in symbols:
+            coin = CoinController.from_db(symbol=symbol["symbol"])
+            if not coin:
+                continue
+            coin.coin.price = symbol["price"]
+        db.session.commit()

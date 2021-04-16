@@ -80,7 +80,7 @@ class Trade(db.Model):
 
     def to_json(self):
         return {
-            "symbol": self.coin.symbol,
+            "symbol": self.wallet.coin.symbol,
             "price": self.price,
             "amount": self.amount,
             "time": self.time,

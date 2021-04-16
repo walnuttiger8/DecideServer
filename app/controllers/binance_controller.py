@@ -43,16 +43,23 @@ class BinanceController:
             result.append(symbol["symbol"])
         return result
 
+    @staticmethod
+    def get_order_book():
+        url = "/api/v3/ticker/bookTicker"
+        response = requests.get(BinanceController._base_url + url)
+        data = response.json()
+        return data
 
-from app import db
-from app.main.models import Coin
+    @staticmethod
+    def get_symbols_price():
+        data = BinanceController.get_order_book()
+        result = list()
+        for symbol in data:
+            result.append({"symbol": symbol["symbol"], "price": symbol["bidPrice"]})
+        return result
+
 
 if __name__ == "__main__":
-    symbol = "BTCUSDT"
-    interval = "15m"
-
-    for data in BinanceController.get_symbols():
-        if data.endswith("USDT"):
-            coin = Coin(symbol=data)
-            db.session.add(coin)
-    db.session.commit()
+    data = BinanceController.get_symbols_price()
+    for symbol in data:
+        print(symbol)

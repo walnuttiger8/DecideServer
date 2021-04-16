@@ -1,5 +1,5 @@
 from app.main.models import Coin
-from app.controllers.BinanceController import BinanceController
+from app.controllers.binance_controller import BinanceController
 from app import db, model
 
 
@@ -23,6 +23,11 @@ class CoinController:
     def price(self):
         return self.coin.price
 
+    @property
+    def wallets(self):
+        from app.controllers.wallet_controller import WalletController as WC
+        return [WC(wallet) for wallet in self.coin.wallets]
+
     def get_price(self):
         price: float = BinanceController.get_price(self.symbol)
         if not price:
@@ -42,8 +47,8 @@ class CoinController:
             return None
         return CoinController(coin)
 
-    def get_history(self):
-        history = BinanceController.get_candlestick_data(self.symbol, limit=10, interval="1h")
+    def get_history(self, limit=10, interval="1h"):
+        history = BinanceController.get_candlestick_data(self.symbol, limit=limit, interval=interval)
         data = [h[4] for h in history]
         return data
 
@@ -51,10 +56,21 @@ class CoinController:
         data = self.get_history()
         return model.predict(data)
 
-
     def to_json(self):
         json = {
-                "symbol": self.symbol,
-                "price": self.price,
-            }
+            "symbol": self.symbol,
+            "price": self.price,
+        }
         return json
+
+    @staticmethod
+    def update_all_price():
+        symbols = BinanceController.get_symbols_price()
+        symbols = list(filter(lambda symbol: symbol["symbol"].endswith("USDT"), symbols))
+        for symbol in symbols:
+            coin = CoinController.from_db(symbol=symbol["symbol"])
+            if not coin:
+                continue
+            coin.coin.price = symbol["price"]
+        db.session.commit()
+

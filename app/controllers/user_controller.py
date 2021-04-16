@@ -1,6 +1,6 @@
 from app.main.models import User, Wallet, Trade
-from app.controllers.CoinController import CoinController
-from app.controllers.WalletController import WalletController
+from app.controllers.coin_controller import CoinController
+from app.controllers.wallet_controller import WalletController
 from app import db
 
 data = {
@@ -10,7 +10,7 @@ data = {
 }
 
 
-class UserController():
+class UserController:
 
     def __init__(self, user: User):
         self._user = user
@@ -88,4 +88,10 @@ class UserController():
         if not wallet:
             return
         wallet.sell()
+
+    def get_profit(self):
+        profit = 0
+        for wallet in self.wallets:
+            profit += wallet.get_profit()
+        return profit
 

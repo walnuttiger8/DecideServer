@@ -26,14 +26,21 @@ def create_app(config_class=Config):
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
 
+    from app.controllers.signal_controller import SignalController
+    from threading import Thread
+
+    signal = SignalController()
+    signal_th = Thread(target=signal.mainloop, args=(app,))
+    signal_th.start()
+
     @app.shell_context_processor
     def make_shell_context():
         from app.main.models import User, Coin, Wallet
-        from app.controllers.WalletController import WalletController
-        from app.controllers.CoinController import CoinController
+        from app.controllers.wallet_controller import WalletController
+        from app.controllers.coin_controller import CoinController
         from app.controllers.user_controller import UserController
         from app.controllers.model_controller import ModelController
-        from app.controllers.BinanceController import BinanceController
+        from app.controllers.binance_controller import BinanceController
         return {'db': db, 'User': User, 'Coin': Coin, "Wallet": Wallet,
                 "WC": WalletController, "CC": CoinController, "UC": UserController, "MC": ModelController,
                 "BC": BinanceController, "oleg": UserController.from_db(1),

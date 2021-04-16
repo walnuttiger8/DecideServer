@@ -4,7 +4,8 @@ from app import db
 from app.main import bp
 from app.main.models import User
 from app.controllers.user_controller import UserController
-from app.controllers.CoinController import CoinController
+from app.controllers.coin_controller import CoinController
+from app.controllers.wallet_controller import WalletController
 
 
 @bp.route("/", methods=["POST"])
@@ -150,3 +151,73 @@ def get_trades():
         results.append(trade.to_json())
 
     return jsonify(success=1, results=results, message="Успешно")
+
+
+@bp.route("/get_history", methods=["POST"])
+def get_history():
+    data = request.get_json()
+    limit = 10
+    if "symbol" in data:
+        symbol = data["symbol"]
+    else:
+        return jsonify(success=0, results={}, message="Отсутствует ключ 'symbol'")
+
+    interval = data["interval"] if "interval" in data else "1h"
+    limit = data["limit"] if "limit" in data else 10
+
+    coin = CoinController.from_db(symbol=symbol)
+    if not coin:
+        return jsonify(success=0, results={}, message="Монета не найдена")
+
+    history = coin.get_history(interval=interval, limit=limit)
+    return jsonify(success=1, results=history, message="Успешно")
+
+
+@bp.route("/sell", methods=["POST"])
+def sell_coin():
+    data = request.get_json()
+    if "wallet_id" in data:
+        wallet_id = data["wallet_id"]
+    else:
+        return jsonify(success=0, results={}, message="Отсутствует ключ 'wallet_id'")
+
+    wallet = WalletController.from_db(wallet_id)
+    if not wallet:
+        return jsonify(success=0, results={}, message="Кошелек не найден")
+
+    wallet.sell()
+    trade = wallet.trades.last()
+    return jsonify(success=1, results=trade.to_json(), message="Монета продана")
+
+
+@bp.route("/overall_balance")
+def overall_balance():
+    data = request.get_json()
+    if "user_id" in data:
+        user_id = data["user_id"]
+    else:
+        return jsonify(success=0, results={}, message="Отсутствует user_id")
+
+    user = UserController.from_db(user_id)
+    if not user:
+        return jsonify(success=0, results={}, message="Пользователь не найден")
+
+    balance = user.get_overall_balance()
+    return jsonify(success=1, results={"balance": balance}, message="Успешно")
+
+
+@bp.route("/top_up")
+def top_up():
+    data = request.get_json()
+    if "user_id" in data and "amount":
+        user_id = data["user_id"]
+        amount = data["amount"]
+    else:
+        return jsonify(success=0, results={}, message="Отсутствует user_id")
+
+    user = UserController.from_db(user_id)
+    if not user:
+        return jsonify(success=0, results={}, message="Пользователь не найден")
+
+    user.user.top_up(amount)
+    return jsonify(success=1, results={"balance": user.balance}, message="Успешно")

@@ -273,21 +273,23 @@ def get_coins():
 def get_profit():
     data = request.get_json()
 
-    if "user_id" in data and "symbol" in data:
+    if "user_id" in data:
         user_id = data["user_id"]
-        symbol = data["symbol"]
     else:
         return jsonify(success=0, results={}, message="Отсутствует ключ 'user_id' или 'user_id'")
 
-    coin = CoinController.from_db(symbol=symbol)
     user = UserController.from_db(user_id)
-
     if not user:
         return jsonify(success=0, results={}, message="Пользователь не найден")
 
-    wallet = user.get_wallet(coin)
+    if "symbol" in data:
+        symbol = data["symbol"]
+        coin = CoinController.from_db(symbol=symbol)
+        wallet = user.get_wallet(coin)
+        profit = wallet.get_profit()
 
-    if not wallet:
-        return jsonify(success=0, results={}, message="Кошелек не найден")
+    else:
+        profit = user.get_profit()
 
-    return jsonify(success=1, results={"profit": wallet.get_profit()}, message=f"Профит по {coin.symbol}")
+    return jsonify(success=1, results={"profit": profit}, message=f"Профит")
+

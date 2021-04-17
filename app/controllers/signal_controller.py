@@ -44,7 +44,7 @@ class SignalController:
                 else:
                     SignalController.sell(coin)
 
-            time.sleep(10)
+            time.sleep(60*15)
 
 
 

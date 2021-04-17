@@ -47,7 +47,7 @@ class CoinController:
             return None
         return CoinController(coin)
 
-    def get_history(self, limit=10, interval="1h"):
+    def get_history(self, limit=10, interval="15m"):
         history = BinanceController.get_candlestick_data(self.symbol, limit=limit, interval=interval)
         data = [h[4] for h in history]
         return data

@@ -8,13 +8,14 @@ import os
 
 
 ETH_1H_MODEL = r"60-20-60-model.hdf5"
+ETH_15M_MODEL = r"eth-trained-model-15m.hdf5"
 
 
 class ModelController:
     prediction_period = 10
     model_bias = 0.01
 
-    def __init__(self, modelpath: str = os.path.join(os.getcwd(), ETH_1H_MODEL)):
+    def __init__(self, modelpath: str = os.path.join(os.getcwd(), ETH_15M_MODEL)):
         self._model: tf.keras.Sequential = tf.keras.models.load_model(modelpath)
         self._scaler = MinMaxScaler(feature_range=(0, 1))
 

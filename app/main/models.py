@@ -49,6 +49,8 @@ class Wallet(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     coin_id = db.Column(db.Integer, db.ForeignKey("coin.id"))
     trades = db.relationship("Trade", backref="wallet", lazy="dynamic")
+    stop_loss = db.Column(db.Float(), default=1)
+    take_profit = db.Column(db.Float(), default=3)
 
     def __repr__(self):
         return f"<Wallet {self.coin.symbol}; {self.amount}; {self.percent}%>"

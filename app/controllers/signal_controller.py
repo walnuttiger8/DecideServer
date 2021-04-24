@@ -44,7 +44,27 @@ class SignalController:
                 else:
                     SignalController.sell(coin)
 
-            time.sleep(60*15)
+            time.sleep(60 * 30)
 
+    def sltp_loop(self, app):
+        """
+        Stop loss & Take profit
 
+        :param app:
+        :return:
+        """
+        app.app_context().push()
 
+        while True:
+            CC.update_all_price()
+            coins = list()
+            for coin in Coin.query.all():
+                if coin.wallets.count() > 0:
+                    coins.append(coin)
+
+            for coin in coins:
+                coin = CC(coin)
+                for wallet in coin.wallets:
+                    wallet.sltp()
+
+            time.sleep(60 * 1)

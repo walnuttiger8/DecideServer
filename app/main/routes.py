@@ -195,7 +195,7 @@ def sell_coin():
     return jsonify(success=1, results={}, message="Монета продана")
 
 
-@bp.route("/overall_balance")
+@bp.route("/overall_balance", methods=["POST"])
 def overall_balance():
     data = request.get_json()
     if "user_id" in data:
@@ -211,7 +211,7 @@ def overall_balance():
     return jsonify(success=1, results={"balance": balance}, message="Успешно")
 
 
-@bp.route("/top_up")
+@bp.route("/top_up", methods=["POST"])
 def top_up():
     data = request.get_json()
     if "user_id" in data and "amount":

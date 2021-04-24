@@ -90,3 +90,20 @@ class WalletController:
         trade = Trade(wallet=self.wallet, price=self.coin.price, amount=self.amount, transaction=transaction)
         db.session.add(trade)
         db.session.commit()
+
+    def sltp(self):
+        """
+        Stop loss & Take profit
+
+        :return:
+        """
+        if self.amount == 0:
+            return
+        profit = self.get_profit()
+        profit_percent = (abs(profit) / (self.amount * self.coin.price)) * 100
+        if self.wallet.take_profit and profit > 0 and profit_percent >= self.wallet.take_profit:
+            self.sell()
+            print(f"take profit {self.wallet}, for {self.user}")
+        elif self.wallet.stop_loss and profit < 0 and profit_percent >= self.wallet.stop_loss:
+            self.sell()
+            print(f"stop loss {self.wallet}, for {self.user}")

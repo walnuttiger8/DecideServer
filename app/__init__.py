@@ -26,15 +26,6 @@ def create_app(config_class=Config):
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
 
-    from app.controllers.signal_controller import SignalController
-    from threading import Thread
-
-    signal = SignalController()
-    signal_th = Thread(target=signal.mainloop, args=(app,))
-    sltp_th = Thread(target=signal.sltp_loop, args=(app,))
-    signal_th.start()
-    sltp_th.start()
-
     @app.shell_context_processor
     def make_shell_context():
         from app.main.models import User, Coin, Wallet

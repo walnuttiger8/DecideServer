@@ -66,7 +66,7 @@ class WalletController:
         if amount > 0.0001:
             self.user.spend(value)
             self.wallet.buy(amount)
-            self.add_trade(Trade.BUY)
+            self.add_trade(Trade.BUY, amount)
 
     def sell(self):
         value = self.coin.price * self.amount
@@ -86,8 +86,9 @@ class WalletController:
         profit += self.amount * self.coin.price
         return profit
 
-    def add_trade(self, transaction: str = Trade.BUY):
-        trade = Trade(wallet=self.wallet, price=self.coin.price, amount=self.amount, transaction=transaction)
+    def add_trade(self, transaction: str = Trade.BUY, amount=None):
+        amount = amount or self.amount
+        trade = Trade(wallet=self.wallet, price=self.coin.price, amount=amount, transaction=transaction)
         db.session.add(trade)
         db.session.commit()
 
@@ -97,13 +98,13 @@ class WalletController:
 
         :return:
         """
-        if self.amount == 0:
+        if self.amount < 0.0001:
             return
         profit = self.get_profit()
         profit_percent = (abs(profit) / (self.amount * self.coin.price)) * 100
         if self.wallet.take_profit and profit > 0 and profit_percent >= self.wallet.take_profit:
             self.sell()
-            print(f"take profit {self.wallet}, for {self.user}")
+            print(f"take profit {self.wallet}, for {self.user} profit: {profit}; {self.amount}")
         elif self.wallet.stop_loss and profit < 0 and profit_percent >= self.wallet.stop_loss:
             self.sell()
-            print(f"stop loss {self.wallet}, for {self.user}")
+            print(f"stop loss {self.wallet}, for {self.user} loss: {profit}; {self.amount}")
